@@ -115,9 +115,24 @@ function typography($string, $lang) {
 	$string = preg_replace('/\.{2,}/u', "\xE2\x80\xA6", $string);
 
 	// Capitalize letters after  '.', '?', '!' or '[' but not after '...'
-	$string = preg_replace('/([^.][.?!\[]\s*\p{L})/ue', 'mb_strtoupper("$1")', $string);
+	$string = preg_replace_callback(
+		'/[^.][.?!\[]\s*\p{L}/u',
+		function ($matches)
+			{
+				return mb_strtoupper($matches[0]);
+			},
+		$string
+	);
+	
 	// Capitalize the first letter
-	$string = preg_replace('/^(\p{L})/ue', 'mb_strtoupper("$1")', $string);
+	$string = preg_replace_callback(
+		'/^\p{L}/u',
+		function ($matches)
+			{
+				return mb_strtoupper($matches[0]);
+			},
+		$string
+	);
 	
 
 	// Add a space after ',', '.', ':', ';', '?', '…' and '!' if they are followed by text
