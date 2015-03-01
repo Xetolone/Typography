@@ -74,6 +74,18 @@ function typography($string, $lang) {
 		// Replace " i " by " I "
 		$string = preg_replace("/\bi\b/u", 'I', $string);
 	}
+	
+	if ($lang == "fr") {
+		// Write number below ten in letters
+		$string = preg_replace_callback(
+			'/(\D)(\d)(\D)/u',
+			function ($matches)
+			{
+				return $matches[1].array('zéro', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf')[$matches[2]].$matches[3];
+			},
+			$string
+		);
+	}
 
 	// Replace unbreakable and tab space by space
 	$string = preg_replace("/\xC2\xA0|\t/u", ' ', $string);
