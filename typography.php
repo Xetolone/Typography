@@ -32,12 +32,15 @@ function typography($string, $lang) {
 	 * \xE2\x80\x99	: GUILLEMET-APOSTROPHE (U+2019) (‘)
 	 * \xC2\xAB\	: LEFT-POINTING DOUBLE ANGLE QUOTATION MARK (U+00AB) («)
 	 * \xC2\xBB		: RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK (U+00BB) (»)
+	 * \xE2\x80\xA6	: HORIZONTAL ELLIPSIS (U+2026) (…)
 	 * 
 	 * Utf-8 code units in hex are understood by PHP and converted
 	 * into character because of the double quotes.
+	 * 
 	 * Unicode code point are understood by preg_ function with
 	 * the synthax \x{FFFF}. Then the double quotesare not
 	 * necessary anymore.
+	 * 
 	 * Example in a regex : NO-BREAK SPACE "\xC2\xA0" is equivalent to '\x{00A0}'
 	 * and *not* '\x{C2A0}'
 	 * 
@@ -85,6 +88,9 @@ function typography($string, $lang) {
 	// Supress space around ponctuation
 	$string = preg_replace("/ *([.,;:?!\"']) */u", '$1', $string);
 
+	// supress tripple letters or more
+	$string = preg_replace('/(\p{L})\1{3,}/u', "$1$1", $string);
+
 	// Supress double ponctuation
 	$string = preg_replace('/,+/u', ',', $string);
 	$string = preg_replace('/;+/u', ';', $string);
@@ -92,15 +98,16 @@ function typography($string, $lang) {
 	$string = preg_replace("/'+/u", "'", $string);
 	$string = preg_replace('/"+/u', '"', $string);
 	// Replace two or more points by three points
-	$string = preg_replace('/\.{2,}/u', '...', $string);
+	$string = preg_replace('/\.{2,}/u', "\xE2\x80\xA6", $string);
 
-	// Capitalize letters after '.', '?', or '!'
-	$string = preg_replace('/([.?!^\[][\n\r]*\p{L})/ue', 'mb_strtoupper("$1")', $string);
+	// Capitalize letters after  '.', '?', '!' or '[' but not after '...'
+	$string = preg_replace('/([^.][.?!\[]\s*\p{L})/ue', 'mb_strtoupper("$1")', $string);
 	// Capitalize the first letter
 	$string = preg_replace('/^(\p{L})/ue', 'mb_strtoupper("$1")', $string);
+	
 
-	// Add a space after ',', '.', ':', ';', '?' and '!' if they are followed by text
-	$string = preg_replace('/([.,;:?!])([^:;?!.\n\r\]])/u', '$1 $2', $string);
+	// Add a space after ',', '.', ':', ';', '?', '…' and '!' if they are followed by text
+	$string = preg_replace('/([.,;:?!\x{2026}])([^:;?!.\n\r\]])/u', '$1 $2', $string);
 
 	
 	if ($lang == "fr") {
