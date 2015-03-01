@@ -33,6 +33,8 @@ function typography($string, $lang) {
 	 * \xC2\xAB\	: LEFT-POINTING DOUBLE ANGLE QUOTATION MARK (U+00AB) («)
 	 * \xC2\xBB		: RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK (U+00BB) (»)
 	 * \xE2\x80\xA6	: HORIZONTAL ELLIPSIS (U+2026) (…)
+	 * \xE2\x80\x9C	: LEFT DOUBLE QUOTATION MARK (U+201C) (“)
+	 * \xE2\x80\x9D	: RIGHT DOUBLE QUOTATION MARK (U+201D) (”)
 	 * 
 	 * Utf-8 code units in hex are understood by PHP and converted
 	 * into character because of the double quotes.
@@ -130,6 +132,13 @@ function typography($string, $lang) {
 		$string = preg_replace('/"([^"]*)"/u', " \xC2\xAB\xC2\xA0$1\xC2\xA0\xC2\xBB", $string);
 		// Add a space after '»' only if it is followed by text
 		$string = preg_replace("/\xC2\xBB(\p{L})/u", "\xC2\xBB $1", $string);
+	}
+	if ($lang == "en") {
+		// This one is a bit risky
+		// '"text"' -> '“text”'
+		$string = preg_replace('/"([^"]*)"/u', " \xE2\x80\x9C$1\xE2\x80\x9D", $string);
+		// Add a space after '”' only if it is followed by text
+		$string = preg_replace("/\x{201D}(\p{L})/u", "\xC2\xBB $1", $string);
 	}
 	
 	// Add a point at the end if there is no ponctuation
